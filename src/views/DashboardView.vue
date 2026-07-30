@@ -1,30 +1,54 @@
 <script setup lang="ts">
-const statistics = [
+import { computed, onMounted } from 'vue'
+
+import { useAnalysisStore } from '@/stores/analysis'
+
+const analysisStore = useAnalysisStore()
+
+onMounted(() => {
+  analysisStore.hydrate()
+})
+
+const statistics = computed(() => [
   {
     label: '已分析岗位',
-    value: '12',
-    change: '本周新增 3 个',
+    value: String(analysisStore.totalCount),
+    change:
+      analysisStore.totalCount > 0
+        ? '数据已保存到浏览器'
+        : '完成第一次 JD 分析',
     type: 'purple',
   },
   {
     label: '平均匹配度',
-    value: '68%',
-    change: '较上周提升 6%',
+    value:
+      analysisStore.totalCount > 0
+        ? `${analysisStore.averageScore}%`
+        : '--',
+    change:
+      analysisStore.currentResult
+        ? `最新：${analysisStore.currentResult.score}%`
+        : '暂无匹配度数据',
     type: 'green',
   },
   {
     label: '进行中任务',
-    value: '8',
-    change: '3 个将在本周到期',
+    value: analysisStore.currentResult
+      ? String(
+          analysisStore.currentResult
+            .learningTasks.length,
+        )
+      : '0',
+    change: '来自最新 JD 分析',
     type: 'orange',
   },
   {
     label: '已投递岗位',
-    value: '16',
-    change: '获得 4 次面试',
+    value: '0',
+    change: '投递模块将在下一阶段完成',
     type: 'blue',
   },
-]
+])
 
 const focusTasks = [
   {
@@ -96,13 +120,31 @@ const applicationStages = [
       <div class="score-card">
         <span>当前综合准备度</span>
 
-        <strong>68</strong>
+        <strong>
+            {{
+                analysisStore.currentResult?.score ?? 0
+            }}
+        </strong>
 
         <div class="score-bar">
-          <span></span>
+            <span
+                :style="{
+                width: `${
+                    analysisStore.currentResult?.score ??
+                    0
+                }%`,
+                }"
+            ></span>
         </div>
 
-        <small>距离推荐投递线还差 7 分</small>
+        <small>
+            {{
+                analysisStore.currentResult
+                ? analysisStore.currentResult
+                    .readinessLabel
+                : '完成一次 JD 分析后生成数据'
+            }}
+        </small>
       </div>
     </section>
 
