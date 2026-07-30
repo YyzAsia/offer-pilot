@@ -34,9 +34,11 @@ import type {
 
 import { analyzeJobDescription } from '@/utils/jdAnalyzer'
 import { useRoadmapStore } from '@/stores/roadmap'
+import { useApplicationStore } from '@/stores/application'
 
 const analysisStore = useAnalysisStore()
 const roadmapStore = useRoadmapStore()
+const applicationStore =useApplicationStore()
 
 const formRef = ref<FormInstance>()
 const resultSectionRef =
@@ -269,9 +271,37 @@ function addCurrentResultToRoadmap(): void {
   )
 }
 
+function addCurrentResultToApplications(): void {
+  if (!currentResult.value) {
+    ElMessage.warning(
+      '当前没有可以加入投递管理的分析结果',
+    )
+
+    return
+  }
+
+  const application =
+    applicationStore.createFromAnalysis(
+      currentResult.value,
+    )
+
+  if (!application) {
+    ElMessage.info(
+      '该公司和岗位已经存在于投递管理中',
+    )
+
+    return
+  }
+
+  ElMessage.success(
+    '已加入投递管理，可前往投递看板继续完善信息',
+  )
+}
+
 onMounted(() => {
   analysisStore.hydrate()
   roadmapStore.hydrate()
+  applicationStore.hydrate()
 
   currentResult.value =
     analysisStore.currentResult
@@ -483,6 +513,9 @@ onMounted(() => {
         @reanalyze="resetForm"
         @add-to-roadmap="
             addCurrentResultToRoadmap
+        "
+        @add-to-applications="
+            addCurrentResultToApplications
         "
        />
     </section>
