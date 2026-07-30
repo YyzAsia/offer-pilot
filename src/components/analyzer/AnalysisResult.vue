@@ -15,6 +15,7 @@ const props = defineProps<{
 defineEmits<{
   reanalyze: []
   'add-to-roadmap': []
+  'add-to-applications': []
 }>()
 
 const scoreColor = computed(() => {
@@ -77,9 +78,21 @@ function formatDate(date: string): string {
         </p>
       </div>
 
-      <el-button @click="$emit('reanalyze')">
-        重新填写
-      </el-button>
+      <div class="result-actions">
+        <el-button
+            type="primary"
+            plain
+            @click="
+            $emit('add-to-applications')
+            "
+        >
+            加入投递管理
+        </el-button>
+
+        <el-button @click="$emit('reanalyze')">
+            重新填写
+        </el-button>
+      </div>
     </header>
 
     <section class="score-section">
@@ -503,6 +516,13 @@ function formatDate(date: string): string {
   line-height: 1.65;
 }
 
+.result-actions {
+  display: flex;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+
 @media (max-width: 780px) {
   .score-section {
     grid-template-columns: 1fr;
@@ -545,6 +565,15 @@ function formatDate(date: string): string {
   .result-section,
   .score-section {
     padding: 21px;
+  }
+  .result-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .result-actions :deep(.el-button) {
+    width: 100%;
+    margin-left: 0;
   }
 }
 </style>
