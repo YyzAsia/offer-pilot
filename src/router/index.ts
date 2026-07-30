@@ -1,23 +1,65 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
+      component: () => import('@/layouts/AppLayout.vue'),
+
+      children: [
+        {
+          path: '',
+          redirect: '/dashboard',
+        },
+        {
+          path: 'dashboard',
+          name: 'dashboard',
+          component: () => import('@/views/DashboardView.vue'),
+          meta: {
+            title: '数据总览',
+          },
+        },
+        {
+          path: 'analyzer',
+          name: 'analyzer',
+          component: () => import('@/views/AnalyzerView.vue'),
+          meta: {
+            title: 'JD 智能分析',
+          },
+        },
+        {
+          path: 'roadmap',
+          name: 'roadmap',
+          component: () => import('@/views/RoadmapView.vue'),
+          meta: {
+            title: '学习路线',
+          },
+        },
+        {
+          path: 'applications',
+          name: 'applications',
+          component: () => import('@/views/ApplicationsView.vue'),
+          meta: {
+            title: '投递管理',
+          },
+        },
+      ],
     },
+
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'),
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/views/NotFoundView.vue'),
     },
   ],
+})
+
+router.afterEach((to) => {
+  const title = typeof to.meta.title === 'string' ? to.meta.title : 'OfferPilot'
+
+  document.title = `${title} - OfferPilot`
 })
 
 export default router
