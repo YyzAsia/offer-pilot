@@ -33,8 +33,10 @@ import type {
 } from '@/types/analyzer'
 
 import { analyzeJobDescription } from '@/utils/jdAnalyzer'
+import { useRoadmapStore } from '@/stores/roadmap'
 
 const analysisStore = useAnalysisStore()
+const roadmapStore = useRoadmapStore()
 
 const formRef = ref<FormInstance>()
 const resultSectionRef =
@@ -240,8 +242,36 @@ async function removeHistory(
   }
 }
 
+function addCurrentResultToRoadmap(): void {
+  if (!currentResult.value) {
+    ElMessage.warning(
+      '当前没有可以导入的分析结果',
+    )
+
+    return
+  }
+
+  const createdCount =
+    roadmapStore.importFromAnalysis(
+      currentResult.value,
+    )
+
+  if (createdCount === 0) {
+    ElMessage.info(
+      '这些技能已经存在于学习路线中',
+    )
+
+    return
+  }
+
+  ElMessage.success(
+    `已新增 ${createdCount} 个学习任务`,
+  )
+}
+
 onMounted(() => {
   analysisStore.hydrate()
+  roadmapStore.hydrate()
 
   currentResult.value =
     analysisStore.currentResult
@@ -451,7 +481,10 @@ onMounted(() => {
       <AnalysisResultView
         :result="currentResult"
         @reanalyze="resetForm"
-      />
+        @add-to-roadmap="
+            addCurrentResultToRoadmap
+        "
+       />
     </section>
   </div>
 </template>

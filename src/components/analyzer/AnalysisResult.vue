@@ -14,6 +14,7 @@ const props = defineProps<{
 
 defineEmits<{
   reanalyze: []
+  'add-to-roadmap': []
 }>()
 
 const scoreColor = computed(() => {
@@ -196,10 +197,22 @@ function formatDate(date: string): string {
     <section class="result-section">
       <header>
         <div>
-          <span>LEARNING TASKS</span>
-          <h3>推荐学习任务</h3>
+        <span>LEARNING TASKS</span>
+        <h3>推荐学习任务</h3>
         </div>
-      </header>
+
+        <el-button
+        type="primary"
+        :disabled="
+            result.learningTasks.length === 0
+        "
+        @click="
+            $emit('add-to-roadmap')
+        "
+        >
+        加入学习路线
+        </el-button>
+    </header>
 
       <div
         v-if="result.learningTasks.length"
@@ -373,6 +386,11 @@ function formatDate(date: string): string {
 }
 
 .result-section header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
   margin-bottom: 20px;
 }
 
@@ -506,6 +524,15 @@ function formatDate(date: string): string {
 }
 
 @media (max-width: 480px) {
+    .result-section header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .result-section header :deep(.el-button) {
+    width: 100%;
+    margin-left: 0;
+  }
   .result-header {
     flex-direction: column;
   }
