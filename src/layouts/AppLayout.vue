@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import {
+  computed,
+  onMounted,
+  ref,
+} from 'vue'
 import { useRoute } from 'vue-router'
 import {
   DataAnalysis,
@@ -8,9 +12,18 @@ import {
   Menu as MenuIcon,
   Promotion,
 } from '@element-plus/icons-vue'
+import { useRoadmapStore } from '@/stores/roadmap'
 
 const route = useRoute()
+const roadmapStore = useRoadmapStore()
 const drawerVisible = ref(false)
+const learningProgress = computed(
+  () => roadmapStore.averageProgress,
+)
+
+onMounted(() => {
+  roadmapStore.hydrate()
+})
 
 const navigationItems = [
   {
@@ -79,14 +92,29 @@ function closeDrawer() {
       </nav>
 
       <div class="sidebar-tip">
-        <span class="tip-label">本周目标</span>
-        <strong>完成第一个可演示版本</strong>
+        <span class="tip-label">
+            学习路线
+        </span>
+
+        <strong>
+            {{
+            roadmapStore.activeCount > 0
+                ? `还有 ${roadmapStore.activeCount} 个任务未完成`
+                : '创建你的第一个学习任务'
+            }}
+        </strong>
 
         <div class="tip-progress">
-          <span></span>
+            <span
+            :style="{
+                width: `${learningProgress}%`,
+            }"
+            ></span>
         </div>
 
-        <small>当前进度 18%</small>
+        <small>
+            平均进度 {{ learningProgress }}%
+        </small>
       </div>
     </aside>
 

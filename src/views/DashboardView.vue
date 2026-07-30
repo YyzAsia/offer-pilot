@@ -2,11 +2,14 @@
 import { computed, onMounted } from 'vue'
 
 import { useAnalysisStore } from '@/stores/analysis'
+import { useRoadmapStore } from '@/stores/roadmap'
 
 const analysisStore = useAnalysisStore()
+const roadmapStore = useRoadmapStore()
 
 onMounted(() => {
   analysisStore.hydrate()
+  roadmapStore.hydrate()
 })
 
 const statistics = computed(() => [
@@ -32,14 +35,17 @@ const statistics = computed(() => [
     type: 'green',
   },
   {
-    label: '进行中任务',
-    value: analysisStore.currentResult
-      ? String(
-          analysisStore.currentResult
-            .learningTasks.length,
-        )
-      : '0',
-    change: '来自最新 JD 分析',
+    label: '未完成任务',
+
+    value: String(
+        roadmapStore.activeCount,
+    ),
+
+    change:
+        roadmapStore.overdueCount > 0
+        ? `${roadmapStore.overdueCount} 个任务已经逾期`
+        : `平均进度 ${roadmapStore.averageProgress}%`,
+
     type: 'orange',
   },
   {
@@ -50,23 +56,14 @@ const statistics = computed(() => [
   },
 ])
 
-const focusTasks = [
-  {
-    title: '完成 Vue Router 权限控制',
-    category: 'Vue 3',
-    progress: 70,
-  },
-  {
-    title: '整理 JavaScript 事件循环笔记',
-    category: 'JavaScript',
-    progress: 45,
-  },
-  {
-    title: '完成 OfferPilot JD 分析页面',
-    category: '项目开发',
-    progress: 25,
-  },
-]
+const focusTasks = computed(() =>
+  roadmapStore.focusTasks.map((task) => ({
+    id: task.id,
+    title: task.title,
+    category: task.skillName,
+    progress: task.progress,
+  })),
+)
 
 const applicationStages = [
   {
@@ -172,25 +169,47 @@ const applicationStages = [
           <RouterLink to="/roadmap">查看全部</RouterLink>
         </header>
 
-        <div class="task-list">
-          <div
+        <div
+        v-if="focusTasks.length"
+        class="task-list"
+        >
+        <div
             v-for="task in focusTasks"
-            :key="task.title"
+            :key="task.id"
             class="task-item"
-          >
+        >
             <div class="task-main">
-              <span>{{ task.category }}</span>
-              <strong>{{ task.title }}</strong>
+            <span>{{ task.category }}</span>
+            <strong>{{ task.title }}</strong>
             </div>
 
             <div class="task-progress">
-              <span>{{ task.progress }}%</span>
+            <span>{{ task.progress }}%</span>
 
-              <div>
-                <i :style="{ width: `${task.progress}%` }"></i>
-              </div>
+            <div>
+                <i
+                :style="{
+                    width: `${task.progress}%`,
+                }"
+                ></i>
             </div>
-          </div>
+            </div>
+        </div>
+        </div>
+
+        <div
+        v-else
+        class="empty-task-state"
+        >
+        <strong>还没有学习任务</strong>
+
+        <p>
+            完成一次 JD 分析并将任务加入学习路线。
+        </p>
+
+        <RouterLink to="/analyzer">
+            前往 JD 分析
+        </RouterLink>
         </div>
       </article>
 
@@ -554,6 +573,34 @@ const applicationStages = [
   background: linear-gradient(90deg, #635bff, #9a94ff);
   border-radius: inherit;
 }
+
+.empty-task-state {
+  padding: 34px 20px;
+
+  text-align: center;
+
+  background: #f8f9fc;
+  border-radius: 13px;
+}
+
+.empty-task-state strong {
+  display: block;
+  font-size: 14px;
+}
+
+.empty-task-state p {
+  margin: 7px 0 13px;
+
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.empty-task-state a {
+  color: var(--primary-color);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 
 @media (max-width: 1100px) {
   .statistics-grid {
