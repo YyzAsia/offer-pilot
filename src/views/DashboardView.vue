@@ -3,13 +3,16 @@ import { computed, onMounted } from 'vue'
 
 import { useAnalysisStore } from '@/stores/analysis'
 import { useRoadmapStore } from '@/stores/roadmap'
+import { useApplicationStore } from '@/stores/application'
 
 const analysisStore = useAnalysisStore()
 const roadmapStore = useRoadmapStore()
+const applicationStore =useApplicationStore()
 
 onMounted(() => {
   analysisStore.hydrate()
   roadmapStore.hydrate()
+  applicationStore.hydrate()
 })
 
 const statistics = computed(() => [
@@ -50,8 +53,16 @@ const statistics = computed(() => [
   },
   {
     label: '已投递岗位',
-    value: '0',
-    change: '投递模块将在下一阶段完成',
+
+    value: String(
+        applicationStore.submittedCount,
+    ),
+
+    change:
+        applicationStore.interviewCount > 0
+        ? `当前有 ${applicationStore.interviewCount} 个面试流程`
+        : '继续完善投递计划',
+
     type: 'blue',
   },
 ])
@@ -65,28 +76,48 @@ const focusTasks = computed(() =>
   })),
 )
 
-const applicationStages = [
+const applicationStages = computed(() => [
   {
     label: '准备投递',
-    count: 5,
+
+    count:
+      applicationStore.statusCounts
+        .wishlist,
   },
   {
     label: '已投递',
-    count: 7,
+
+    count:
+      applicationStore.statusCounts
+        .applied,
   },
   {
     label: '笔试',
-    count: 2,
+
+    count:
+      applicationStore.statusCounts[
+        'written-test'
+      ],
   },
   {
     label: '面试',
-    count: 4,
+
+    count:
+      applicationStore.statusCounts[
+        'interview-1'
+      ] +
+      applicationStore.statusCounts[
+        'interview-2'
+      ],
   },
   {
     label: 'Offer',
-    count: 1,
+
+    count:
+      applicationStore.statusCounts
+        .offer,
   },
-]
+])
 </script>
 
 <template>
