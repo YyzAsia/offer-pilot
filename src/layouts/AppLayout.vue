@@ -11,6 +11,7 @@ import {
   List,
   Menu as MenuIcon,
   Promotion,
+  TrendCharts,
 } from '@element-plus/icons-vue'
 import { useRoadmapStore } from '@/stores/roadmap'
 
@@ -30,6 +31,11 @@ const navigationItems = [
     label: '数据总览',
     path: '/dashboard',
     icon: DataAnalysis,
+  },
+  {
+    label: '数据洞察',
+    path: '/insights',
+    icon: TrendCharts,
   },
   {
     label: 'JD 智能分析',

@@ -21,6 +21,22 @@ const router = createRouter({
             title: '数据总览',
           },
         },
+
+
+        {
+          path: 'insights',
+          name: 'insights',
+
+          component: () =>
+            import(
+              '@/views/InsightsView.vue'
+            ),
+
+          meta: {
+            title: '数据洞察',
+          },
+        },
+
         {
           path: 'analyzer',
           name: 'analyzer',
