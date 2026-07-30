@@ -23,6 +23,8 @@ import type {
   EChartsCoreOption,
 } from '@/plugins/echarts'
 
+import DataManagementCard from '@/components/common/DataManagementCard.vue'
+
 interface ActionRecommendation {
   id: string
   level: 'high' | 'medium' | 'normal'
@@ -803,6 +805,7 @@ const recommendations = computed<
         </article>
       </div>
     </section>
+    <DataManagementCard />
   </div>
 </template>
 
