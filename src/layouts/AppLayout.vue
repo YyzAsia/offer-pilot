@@ -11,6 +11,7 @@ import {
   List,
   Menu as MenuIcon,
   Promotion,
+  TrendCharts,
 } from '@element-plus/icons-vue'
 import { useRoadmapStore } from '@/stores/roadmap'
 
@@ -30,6 +31,11 @@ const navigationItems = [
     label: '数据总览',
     path: '/dashboard',
     icon: DataAnalysis,
+  },
+  {
+    label: '数据洞察',
+    path: '/insights',
+    icon: TrendCharts,
   },
   {
     label: 'JD 智能分析',
@@ -65,6 +71,12 @@ function closeDrawer() {
 
 <template>
   <div class="app-shell">
+    <a
+      class="skip-link"
+      href="#main-content"
+    >
+      跳到主要内容
+    </a>
     <aside class="sidebar">
       <div class="brand">
         <div class="brand-mark">O</div>
@@ -146,8 +158,27 @@ function closeDrawer() {
         </div>
       </header>
 
-      <main class="page-content">
-        <RouterView />
+      <main
+        id="main-content"
+        class="page-content"
+        tabindex="-1"
+        >
+        <RouterView
+            v-slot="{
+            Component,
+            route: currentRoute,
+            }"
+        >
+            <Transition
+            name="page"
+            mode="out-in"
+            >
+            <component
+                :is="Component"
+                :key="currentRoute.path"
+            />
+            </Transition>
+        </RouterView>
       </main>
     </section>
 
@@ -417,6 +448,48 @@ function closeDrawer() {
   color: var(--primary-color);
   background: var(--primary-light);
 }
+
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 9999;
+
+  padding: 10px 14px;
+
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+
+  background: var(--primary-color);
+  border-radius: 9px;
+
+  transform: translateY(-150%);
+  transition: transform 0.2s;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.page-enter-active,
+.page-leave-active {
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(7px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
 
 @media (max-width: 900px) {
   .app-shell {
